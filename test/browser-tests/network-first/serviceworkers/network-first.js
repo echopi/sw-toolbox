@@ -25,3 +25,7 @@ self.toolbox.options.cache.name = 'test-cache-name';
 
 self.toolbox.router.get('/test/data/files/text.txt', self.toolbox.networkFirst);
 self.toolbox.router.get('/test/browser-tests/network-first/doesnt-exist', self.toolbox.networkFirst);
+
+self.toolbox.router.get('/test/data/files/text-1.txt', self.toolbox.networkFirst, {
+  rewrite: '/test/data/files/i-am-text-1-cache-key'
+});

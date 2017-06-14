@@ -12,10 +12,16 @@ declare module 'sw-toolbox' {
   export interface Options {
     debug?: boolean
     networkTimeoutSeconds?: number
-    cache?: CacheOptions
+    cache?: CacheOptions,
+    rewrite?: string | Rewrite
   }
+
   export interface Handler {
     (request: Request): Promise<Response>
+  }
+
+  export interface Rewrite {
+    (url: string): String
   }
 
   export interface Router {

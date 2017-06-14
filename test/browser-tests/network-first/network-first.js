@@ -65,6 +65,49 @@ describe('Test toolbox.networkFirst', function() {
     });
   });
 
+  it('should retrieve the first value from the network, then cache the response with the rewrite string', function() {
+    let iframe;
+    const TEST_INPUT = 'hello';
+    return swUtils.activateSW(serviceWorkersFolder + '/network-first.js')
+    .then(newIframe => {
+      iframe = newIframe;
+    })
+    .then(() => {
+      return window.caches.open('test-cache-name');
+    })
+    .then(cache => {
+      return cache.put('/test/data/files/i-am-text-1-cache-key', new Response(TEST_INPUT));
+    })
+    .then(() => {
+      // Call the iframes fetch event so it goes through the service worker
+      return iframe.contentWindow.fetch('/test/data/files/text-1.txt?a=1&b=2&c=3');
+    })
+    .then(response => {
+      response.status.should.equal(200);
+      return response.text();
+    })
+    .then(responseText => {
+      responseText.trim().should.equal('Hello, World 1!');
+      return new Promise(resolve => {
+        // Give the networkFirst step time to respond to request and
+        // update the cache
+        setTimeout(resolve, 500);
+      });
+    })
+    .then(() => {
+      return window.caches.open('test-cache-name');
+    })
+    .then(cache => {
+      return cache.match('/test/data/files/i-am-text-1-cache-key');
+    })
+    .then(response => {
+      return response.text();
+    })
+    .then(responseText => {
+      responseText.trim().should.equal('Hello, World 1!');
+    });
+  });
+
   it.skip('should retrieve the value from the cache for a bad network request', function() {
     let iframe;
     const TEST_INPUT = 'hello';
